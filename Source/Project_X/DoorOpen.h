@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Engine/TriggerVolume.h"
+
 #include "DoorOpen.generated.h"
 
 
@@ -17,7 +19,19 @@ public:
 	// Sets default values for this component's properties
 	UDoorOpen();
 
+
 	UPROPERTY(EditAnywhere)
+		float speed = 1.02;
+	UPROPERTY(EditAnywhere)
+		float DoorCloseTime = 2.0f;
+
+	UPROPERTY(EditAnywhere)
+		ATriggerVolume* MyTriggerVolume;
+	UPROPERTY(VisibleAnywhere)
+		AActor* OpenTheDoorActor;
+
+	float YawBack;
+	float DoorLastOpen;
 	float TargetYaw;
 
 protected:
@@ -27,6 +41,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	void OpenDoorNow(float DeltaTime);
+	void CloseDoorNow(float DeltaTime);
 		
 };

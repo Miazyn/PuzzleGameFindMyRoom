@@ -20,9 +20,26 @@ void UDoorOpen::BeginPlay()
 	Super::BeginPlay();
 
 	FRotator StartRotation = GetOwner()->GetActorRotation();
+
+	YawBack = StartRotation.Yaw;
 	TargetYaw = StartRotation.Yaw += 90;
 	
 	
+	OpenTheDoorActor = GetWorld()->GetFirstPlayerController()->GetPawn();
+
+	if (!MyTriggerVolume)
+	{
+
+		UE_LOG(LogTemp, Error, TEXT("Trigger volume has not been set"));
+
+	}
+	
+	if (!OpenTheDoorActor)
+	{
+
+		UE_LOG(LogTemp, Error, TEXT("Actor has not been set"));
+
+	}
 	
 
 	//UE_LOG(LogTemp, Error, TEXT("%s"), *Door.ToCompactString());
@@ -34,11 +51,33 @@ void UDoorOpen::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	
-	FRotator CurrentRotator = GetOwner()->GetActorRotation();
-	CurrentRotator.Yaw = FMath::Lerp(CurrentRotator.Yaw, TargetYaw, 0.02f);
-
-	GetOwner()->SetActorRotation(CurrentRotator);
+	if (MyTriggerVolume && MyTriggerVolume->IsOverlappingActor(OpenTheDoorActor)) 
+	{
+		OpenDoorNow(DeltaTime);
+		DoorLastOpen = GetWorld()->GetTimeSeconds();
+	}
+	else if(GetWorld()->GetTimeSeconds() - DoorLastOpen > DoorCloseTime)
+	{
+		CloseDoorNow(DeltaTime);
+	}
 	
 }
+
+void UDoorOpen::OpenDoorNow(float DeltaTime)
+{
+	FRotator CurrentRotator = GetOwner()->GetActorRotation();
+	CurrentRotator.Yaw = FMath::Lerp(CurrentRotator.Yaw, TargetYaw, DeltaTime * speed);
+
+	GetOwner()->SetActorRotation(CurrentRotator);
+}
+
+void UDoorOpen::CloseDoorNow(float DeltaTime)
+{
+	
+	FRotator CurrentRotator = GetOwner()->GetActorRotation();
+	CurrentRotator.Yaw = FMath::Lerp(CurrentRotator.Yaw, YawBack, DeltaTime * speed);
+
+	GetOwner()->SetActorRotation(CurrentRotator);
+}
+
 
