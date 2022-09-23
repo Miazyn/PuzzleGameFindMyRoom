@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "Grabber.generated.h"
 
 
@@ -16,7 +17,9 @@ public:
 	// Sets default values for this component's properties
 	UGrabber();
 	UPROPERTY(EditAnywhere)
-		float TraceLength = 100.f;
+		float TraceLength = 200.f;
+
+	UPhysicsHandleComponent* MyPhysicsHandle = nullptr;
 
 protected:
 	// Called when the game starts

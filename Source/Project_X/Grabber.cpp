@@ -19,8 +19,16 @@ void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UE_LOG(LogTemp, Error, TEXT("I am a grabber on the player."));
 	
+	MyPhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+
+	if (!MyPhysicsHandle) {
+		UE_LOG(LogTemp, Error, TEXT("PhysicsHandle is missing."));
+
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Works."));
+	}
 }
 
 
@@ -32,13 +40,22 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 	FVector PlayerViewpointLocation;
 	FRotator PlayerViewPointRotation;
-
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewpointLocation, OUT PlayerViewPointRotation);
 
-	UE_LOG(LogTemp, Warning, TEXT("Location %s | Rotation %s"), *PlayerViewpointLocation.ToString(), *PlayerViewPointRotation.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("Location %s | Rotation %s"), *PlayerViewpointLocation.ToString(), *PlayerViewPointRotation.ToString());
 
 	FVector LineTraceEnd = PlayerViewpointLocation + PlayerViewPointRotation.Vector() * TraceLength;
 
 	DrawDebugLine(GetWorld(), PlayerViewpointLocation, LineTraceEnd, FColor(0,255,0), false, 0.f,0, 5.f);
+
+	FHitResult Hit;
+	FCollisionQueryParams TraceParams(FName(TEXT("")), false, GetOwner());
+
+	GetWorld()->LineTraceSingleByObjectType(OUT Hit, PlayerViewpointLocation, LineTraceEnd, FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),TraceParams);
+
+	AActor* ActorHitted = Hit.GetActor();
+	if (ActorHitted) {
+		UE_LOG(LogTemp, Warning, TEXT("Actor: %s"), *ActorHitted->GetName());
+	}
 }
 
