@@ -21,6 +21,11 @@ public:
 
 	UPhysicsHandleComponent* MyPhysicsHandle = nullptr;
 
+	UInputComponent* MyInputComponent = nullptr;
+
+	void Grab();
+	void GrabRelease();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
