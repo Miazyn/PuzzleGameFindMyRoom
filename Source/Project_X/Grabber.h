@@ -25,6 +25,11 @@ public:
 
 	void Grab();
 	void GrabRelease();
+	void FindPhysicsHandle();
+	void InputSetup();
+	FHitResult GetFirstBodyInReach();
+	FVector GetLineTraceEnd();
+	
 
 protected:
 	// Called when the game starts

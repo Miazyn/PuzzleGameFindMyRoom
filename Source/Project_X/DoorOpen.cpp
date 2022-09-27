@@ -3,6 +3,8 @@
 
 #include "DoorOpen.h"
 
+#include "VectorTypes.h"
+
 // Sets default values for this component's properties
 UDoorOpen::UDoorOpen()
 {
@@ -19,28 +21,24 @@ void UDoorOpen::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FRotator StartRotation = GetOwner()->GetActorRotation();
-
-	YawBack = StartRotation.Yaw;
-	TargetYaw = StartRotation.Yaw += 90;
+	StartRotation = GetOwner()->GetActorRotation().Yaw;
+	TargetYaw = StartRotation + DoorAngle;
 	
-	
-	OpenTheDoorActor = GetWorld()->GetFirstPlayerController()->GetPawn();
 
-	if (!MyTriggerVolume)
+	ActorToOpenDoor = GetWorld()->GetFirstPlayerController()->GetPawn();
+	
+	if (!TriggerVolumeToOpenDoor)
 	{
-
-		UE_LOG(LogTemp, Error, TEXT("Trigger volume has not been set"));
-
+		UE_LOG(LogTemp, Error, TEXT("Achtung: Trigger wurde nicht gesetzt!"));
 	}
-	
-	if (!OpenTheDoorActor)
+
+	if (!ActorToOpenDoor)
 	{
-
-		UE_LOG(LogTemp, Error, TEXT("Actor has not been set"));
-
+		UE_LOG(LogTemp, Error, TEXT("Achtung: Actor wurde nicht gesetzt!"));
 	}
+
 	
+	//TriggerVolumeToOpenDoor->GetOverlappingActors(TriggerVolumeToOpenDoor.GetActor);
 
 	//UE_LOG(LogTemp, Error, TEXT("%s"), *Door.ToCompactString());
 }
@@ -51,33 +49,58 @@ void UDoorOpen::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	if (MyTriggerVolume && MyTriggerVolume->IsOverlappingActor(OpenTheDoorActor)) 
+	if (TriggerVolumeToOpenDoor
+		&& (TriggerVolumeToOpenDoor->IsOverlappingActor(ActorToOpenDoor)|| GetTotalMassOfActors() > TargetWeight)) 
 	{
 		OpenDoorNow(DeltaTime);
 		DoorLastOpen = GetWorld()->GetTimeSeconds();
 	}
-	else if(GetWorld()->GetTimeSeconds() - DoorLastOpen > DoorCloseTime)
+	else if((GetWorld()->GetTimeSeconds() - DoorLastOpen) > DoorCloseDelay)
 	{
-		CloseDoorNow(DeltaTime);
+		CloseDoor(DeltaTime);
 	}
+		
+	
+	
+	
 	
 }
+
+
 
 void UDoorOpen::OpenDoorNow(float DeltaTime)
 {
-	FRotator CurrentRotator = GetOwner()->GetActorRotation();
-	CurrentRotator.Yaw = FMath::Lerp(CurrentRotator.Yaw, TargetYaw, DeltaTime * speed);
+		FRotator CurrentRotator = GetOwner()->GetActorRotation();
+		CurrentRotator.Yaw = FMath::Lerp(CurrentRotator.Yaw, TargetYaw, DeltaTime * DoorSpeed);
 
-	GetOwner()->SetActorRotation(CurrentRotator);
-}
-
-void UDoorOpen::CloseDoorNow(float DeltaTime)
-{
+		GetOwner()->SetActorRotation(CurrentRotator);
 	
-	FRotator CurrentRotator = GetOwner()->GetActorRotation();
-	CurrentRotator.Yaw = FMath::Lerp(CurrentRotator.Yaw, YawBack, DeltaTime * speed);
-
-	GetOwner()->SetActorRotation(CurrentRotator);
 }
 
+void UDoorOpen::CloseDoor(float DeltaTime)
+{
+	FRotator CurrentRotator = GetOwner()->GetActorRotation();
+	CurrentRotator.Yaw = FMath::Lerp(CurrentRotator.Yaw, StartRotation, DeltaTime * DoorSpeed);
+
+
+	GetOwner()->SetActorRotation(CurrentRotator);
+
+	
+
+}
+
+float UDoorOpen::GetTotalMassOfActors()
+{
+
+	float TotalMass = 0.f;
+
+	TArray<AActor*> OverlappingActors;
+	TriggerVolumeToOpenDoor->GetOverlappingActors(OUT OverlappingActors);
+
+	for(AActor* Actor : OverlappingActors)
+	{
+		TotalMass += Actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+	}
+	return TotalMass;
+}
 
