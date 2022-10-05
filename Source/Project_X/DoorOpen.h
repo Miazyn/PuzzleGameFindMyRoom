@@ -6,6 +6,11 @@
 #include "Components/ActorComponent.h"
 #include "Engine/TriggerVolume.h"
 #include "Components/PrimitiveComponent.h"
+
+#include "Components/ActorComponent.h"
+#include "GameFramework/Actor.h"
+#include "Components/AudioComponent.h"
+
 #include "DoorOpen.generated.h"
 
 
@@ -16,8 +21,8 @@ class PROJECT_X_API UDoorOpen : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UDoorOpen();
+
 
 	UPROPERTY(EditAnywhere)
 	float TargetYaw;
@@ -45,18 +50,25 @@ public:
 	UPROPERTY(EditAnywhere)
 	AActor* ActorToOpenDoor;
 
+	UPROPERTY(EditAnywhere)
+	UAudioComponent* MyAudio = nullptr;
+
 	void OpenDoorNow(float DeltaTime);
 
 	void CloseDoor(float DeltaTime);
 
+	void PlayAudioDoor();
+
+	void ErrorMessages();
+
 	float GetTotalMassOfActors();
 
+	bool IsDoorOpen = false;
+
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 		

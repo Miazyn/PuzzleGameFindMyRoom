@@ -5,20 +5,15 @@
 
 #include "Microsoft/AllowMicrosoftPlatformTypes.h"
 
-// Sets default values for this component's properties
 UGrabber::UGrabber()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 	
 	
 
-	// ...
 }
 
 
-// Called when the game starts
 void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
@@ -29,7 +24,6 @@ void UGrabber::BeginPlay()
 }
 
 
-// Called every frame
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -68,11 +62,13 @@ void UGrabber::FindPhysicsHandle()
 {
 	MyPhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
 
-	if (!MyPhysicsHandle) {
+	if (!MyPhysicsHandle) 
+	{
 		UE_LOG(LogTemp, Error, TEXT("PhysicsHandle is missing."));
 
 	}
-	else {
+	else 
+	{
 		UE_LOG(LogTemp, Warning, TEXT("Works."));
 	}
 }
@@ -81,11 +77,13 @@ void UGrabber::InputSetup()
 {
 	MyInputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
 
-	if (MyInputComponent) {
+	if (MyInputComponent) 
+	{
 		MyInputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
 		MyInputComponent->BindAction("Grab", IE_Released, this, &UGrabber::GrabRelease);
 	}
-	else {
+	else 
+	{
 		UE_LOG(LogTemp, Error, TEXT("MyInputComponent is missing."));
 	}
 }
@@ -95,8 +93,6 @@ FHitResult UGrabber::GetFirstBodyInReach()
 	FVector PlayerViewpointLocation;
 	FRotator PlayerViewPointRotation;
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewpointLocation, OUT PlayerViewPointRotation);
-
-	//UE_LOG(LogTemp, Warning, TEXT("Location %s | Rotation %s"), *PlayerViewpointLocation.ToString(), *PlayerViewPointRotation.ToString());
 
 	FVector LineTraceEnd = PlayerViewpointLocation + PlayerViewPointRotation.Vector() * TraceLength;
 
@@ -108,7 +104,8 @@ FHitResult UGrabber::GetFirstBodyInReach()
 	GetWorld()->LineTraceSingleByObjectType(OUT Hit, PlayerViewpointLocation, LineTraceEnd, FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),TraceParams);
 
 	AActor* ActorHited = Hit.GetActor();
-	if (ActorHited) {
+	if (ActorHited) 
+	{
 		UE_LOG(LogTemp, Warning, TEXT("Actor: %s"), *ActorHited->GetName());
 	}
 	return Hit;

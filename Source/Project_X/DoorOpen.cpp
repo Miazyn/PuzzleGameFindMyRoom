@@ -3,6 +3,7 @@
 
 #include "DoorOpen.h"
 
+#include "Components/AudioComponent.h"
 #include "VectorTypes.h"
 
 // Sets default values for this component's properties
@@ -24,23 +25,12 @@ void UDoorOpen::BeginPlay()
 	StartRotation = GetOwner()->GetActorRotation().Yaw;
 	TargetYaw = StartRotation + DoorAngle;
 	
-
+	MyAudio = GetOwner()->FindComponentByClass<UAudioComponent>();
+	MyAudio->Stop();
+	
 	ActorToOpenDoor = GetWorld()->GetFirstPlayerController()->GetPawn();
 	
-	if (!TriggerVolumeToOpenDoor)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Achtung: Trigger wurde nicht gesetzt!"));
-	}
-
-	if (!ActorToOpenDoor)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Achtung: Actor wurde nicht gesetzt!"));
-	}
-
-	
-	//TriggerVolumeToOpenDoor->GetOverlappingActors(TriggerVolumeToOpenDoor.GetActor);
-
-	//UE_LOG(LogTemp, Error, TEXT("%s"), *Door.ToCompactString());
+	ErrorMessages();
 }
 
 
@@ -66,10 +56,30 @@ void UDoorOpen::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	
 }
 
+void UDoorOpen::ErrorMessages() 
+{
+	if (!TriggerVolumeToOpenDoor)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Achtung: Trigger wurde nicht gesetzt!"));
+	}
 
+	if (!ActorToOpenDoor)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Achtung: Actor wurde nicht gesetzt!"));
+	}
+
+	if (!MyAudio) {
+		UE_LOG(LogTemp, Error, TEXT("Missing audio component"));
+	}
+}
 
 void UDoorOpen::OpenDoorNow(float DeltaTime)
 {
+		if (!IsDoorOpen)
+		{
+			PlayAudioDoor();
+			IsDoorOpen = true;
+		}
 		FRotator CurrentRotator = GetOwner()->GetActorRotation();
 		CurrentRotator.Yaw = FMath::Lerp(CurrentRotator.Yaw, TargetYaw, DeltaTime * DoorSpeed);
 
@@ -79,6 +89,9 @@ void UDoorOpen::OpenDoorNow(float DeltaTime)
 
 void UDoorOpen::CloseDoor(float DeltaTime)
 {
+
+	IsDoorOpen = false;
+
 	FRotator CurrentRotator = GetOwner()->GetActorRotation();
 	CurrentRotator.Yaw = FMath::Lerp(CurrentRotator.Yaw, StartRotation, DeltaTime * DoorSpeed);
 
@@ -102,5 +115,20 @@ float UDoorOpen::GetTotalMassOfActors()
 		TotalMass += Actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
 	}
 	return TotalMass;
+}
+
+
+void  UDoorOpen::PlayAudioDoor(){
+
+
+	if (MyAudio) 
+	{
+		MyAudio->Play();
+	}
+	else 
+	{
+		UE_LOG(LogTemp, Error, TEXT("Missing audio component for the door"));
+	}
+
 }
 
