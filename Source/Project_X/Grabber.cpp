@@ -67,10 +67,6 @@ void UGrabber::FindPhysicsHandle()
 		UE_LOG(LogTemp, Error, TEXT("PhysicsHandle is missing."));
 
 	}
-	else 
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Works."));
-	}
 }
 
 void UGrabber::InputSetup()

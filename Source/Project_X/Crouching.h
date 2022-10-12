@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Math/TransformNonVectorized.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/Actor.h"
 #include "Crouching.generated.h"
 
@@ -22,17 +24,16 @@ public:
 	void CrouchDown();
 	void CrouchUp();
 
-	UPROPERTY(VisibleAnywhere)
-	AActor* ActorToCrouch;
-
-	FVector ActorLocation;
-	FVector newLocation;
+	float currentScale;
 
 	UPROPERTY(EditAnywhere)
 	float goDownValue = 5;
 
 	UPROPERTY(VisibleAnywhere)
 	bool currentlyCrouched = false;
+
+	UPROPERTY(EditAnywhere)
+	UCapsuleComponent* myCapsule;
 
 protected:
 	virtual void BeginPlay() override;

@@ -2,6 +2,7 @@
 
 
 #include "Crouching.h"
+#include "Math/TransformNonVectorized.h"
 #include "GameFramework/Actor.h"
 
 UCrouching::UCrouching()
@@ -15,13 +16,7 @@ void UCrouching::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ActorToCrouch = GetWorld()->GetFirstPlayerController()->GetPawn();
-	if (!ActorToCrouch) 
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No Actor defined"));
-	}
 	InputSetup();
-	
 }
 
 
@@ -31,36 +26,37 @@ void UCrouching::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompo
 
 }
 
-void UCrouching::InputSetup() 
+void UCrouching::InputSetup()
 {
-
+	myCapsule = GetOwner()->FindComponentByClass<UCapsuleComponent>();
 	MyInputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
 
-	if (MyInputComponent) 
+	if (MyInputComponent)
 	{
 		MyInputComponent->BindAction("Crouch", IE_Pressed, this, &UCrouching::CrouchDown);
 		MyInputComponent->BindAction("Crouch", IE_Released, this, &UCrouching::CrouchUp);
 	}
-	else 
+	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("MyInputComponent is missing."));
+	}
+	if (!myCapsule)
+	{
+		UE_LOG(LogTemp, Error, TEXT("My Capsule Component is missing."));
 	}
 }
 
 void UCrouching::CrouchDown() 
 {
-	ActorLocation = ActorToCrouch->GetActorLocation();
-	newLocation = FVector(ActorLocation.X, ActorLocation.Y , ActorLocation.Z- goDownValue);
-	ActorToCrouch->SetActorLocation(newLocation, false);
-
-	currentlyCrouched = !currentlyCrouched;
+	currentScale = myCapsule->GetScaledCapsuleHalfHeight();
+	myCapsule->SetCapsuleHalfHeight(currentScale-goDownValue, true);
 	UE_LOG(LogTemp, Warning, TEXT("Clicked to crouch."));
 
 }
 void UCrouching::CrouchUp() 
 {
-
-	currentlyCrouched = !currentlyCrouched;
+	currentScale = myCapsule->GetScaledCapsuleHalfHeight();
+	myCapsule->SetCapsuleHalfHeight(currentScale +goDownValue, true);
 	UE_LOG(LogTemp, Warning, TEXT("Released Crouch"));
 
 }
