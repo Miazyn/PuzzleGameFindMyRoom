@@ -37,21 +37,21 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 void UGrabber::Grab() {
 
-	UE_LOG(LogTemp, Warning, TEXT("Grab."));
+	
 
 	FHitResult Hit = GetFirstBodyInReach();
 
 	if(Hit.GetComponent() && MyPhysicsHandle)
 	{
 		MyPhysicsHandle->GrabComponentAtLocation(Hit.GetComponent(), NAME_None, GetLineTraceEnd());
-		UE_LOG(LogTemp, Warning, TEXT("Component grabbed"));
+		
 	}
 	
 }
 
 void UGrabber::GrabRelease() {
 
-	UE_LOG(LogTemp, Warning, TEXT("Grab released."));
+	
 	if(MyPhysicsHandle->GrabbedComponent)
 	{
 		MyPhysicsHandle->ReleaseComponent();
@@ -92,7 +92,7 @@ FHitResult UGrabber::GetFirstBodyInReach()
 
 	FVector LineTraceEnd = PlayerViewpointLocation + PlayerViewPointRotation.Vector() * TraceLength;
 
-	DrawDebugLine(GetWorld(), PlayerViewpointLocation, LineTraceEnd, FColor(0,255,0), false, 0.f,0, 5.f);
+	//DrawDebugLine(GetWorld(), PlayerViewpointLocation, LineTraceEnd, FColor(0,255,0), false, 0.f,0, 5.f);
 
 	FHitResult Hit;
 	FCollisionQueryParams TraceParams(FName(TEXT("")), false, GetOwner());
